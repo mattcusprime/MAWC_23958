@@ -29,7 +29,7 @@ BEGIN TRY
 BEGIN;
 
 declare @jobNumber nvarchar(max);
-set @jobNumber = (select top 1 oa.[Job Number] from alg.orders alg join dbo.vwOrderAttributeValues oa on oa.ordIDordAv = alg.ordID where alg.algID = @algID);
+set @jobNumber = (select top 1 oa.[Job Number] from alg.orders alg join dbo.vwOrderAttributeValues oa on oa.ordIDordAv = alg.ordID where alg.algID = @algID);--added by Matt/Wolfgang
 			
 
     DECLARE @pltID int =68  -- (SELECT TOP (1) pltID FROM dbo.Plant ORDER BY pltPlantCode)
