@@ -15,6 +15,7 @@ ALTER PROCEDURE [dbo].[spAPP_utlAssignSalesOrdersToProductionDateByAlgID_MWC]
    -- ,@DoUnassign bit = 0
     ,@InitialProductionOrderStatusValue int =null
     ,@FirmedProductionOrderStatusValue int = null
+
 AS
 -- Version : $Id: spAPP_utlAssignSalesOrdersToProductionDateByAlgID_2020.sql,v 1.1 2012/02/07 00:04:32 US01\jamech Exp $
 
@@ -26,6 +27,10 @@ SET @FirmedProductionOrderStatusValue = (select s.setValue from dbo.Settings s w
 
 BEGIN TRY
 BEGIN;
+
+declare @jobNumber nvarchar(max);
+set @jobNumber = (select top 1 oa.[Job Number] from alg.orders alg join dbo.vwOrderAttributeValues oa on oa.ordIDordAv = alg.ordID where alg.algID = @algID);--added by Matt/Wolfgang
+			
 
     DECLARE @pltID int =68  -- (SELECT TOP (1) pltID FROM dbo.Plant ORDER BY pltPlantCode)
         ,@sttID_InitialProductionOrderStatusValue int = (SELECT sttID FROM dbo.[Status] stt WHERE stt.sttValue = @InitialProductionOrderStatusValue)
@@ -102,6 +107,7 @@ Begin
 				,coalesce (@prdProdBatch,1) as prdProdBatch							
 				,@sttID_InitialProductionOrderStatusValue as sttID																																
 				,@pltID as pltID
+				,@JobNumber as JobNumber --added by Matt/Wolfgang
 		) s
 		ON s.prdProdDate = d. prdProdDate
 		AND s.prdProdBatch = d.prdProdBatch
@@ -110,17 +116,22 @@ Begin
 		SET @sttID_Current = d.sttID
 			,@prdID = d.prdID
 			--,d.prdProdBatch = @prdProdBatch
+			,d.prdDescription=s.JobNumber--added by Matt/Wolfgang
         
 		WHEN NOT MATCHED BY TARGET THEN INSERT
 			(prdProdDate
 			,prdProdBatch
 			,sttID
-			,pltID)
+			,pltID
+			,prdDescription)--added by Matt/Wolfgang
+
 		VALUES
 			(s.prdProdDate
 			,@prdProdBatch --s.prdProdBatch
 			,s.sttID
-			,s.pltID);
+			,s.pltID
+			,s.JobNumber--added by Matt/Wolfgang
+			);
 		SET @prdID = ISNULL(@prdID, SCOPE_IDENTITY())
 
 		IF @sttID_Current IS NOT NULL -- only when matched
@@ -189,10 +200,10 @@ Begin
 			JOIN ALG.Orders alg ON alg.ordID = ord.ordID
 			WHERE alg.algID = @algID
 			AND poli.olnID IS NULL
-	
+		
+		
+		
 
-
- 
 	 END
 END
  
