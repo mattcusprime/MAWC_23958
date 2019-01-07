@@ -1,6 +1,6 @@
 USE [inSight_MWC_11_1]
 GO
-/****** Object:  StoredProcedure [dbo].[spAPP_utlAssignSalesOrdersToProductionDateByAlgID_MWC]    Script Date: 12/19/2018 10:11:30 AM ******/
+/****** Object:  StoredProcedure [dbo].[spAPP_utlAssignSalesOrdersToProductionDateByAlgID_MWC]    Script Date: 1/7/2019 12:56:36 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -15,7 +15,9 @@ ALTER PROCEDURE [dbo].[spAPP_utlAssignSalesOrdersToProductionDateByAlgID_MWC]
    -- ,@DoUnassign bit = 0
     ,@InitialProductionOrderStatusValue int =null
     ,@FirmedProductionOrderStatusValue int = null
-
+	--added by Matt 1.7.2019
+	,@OrderStatusValue int
+	--added by Matt 1.7.2019
 AS
 -- Version : $Id: spAPP_utlAssignSalesOrdersToProductionDateByAlgID_2020.sql,v 1.1 2012/02/07 00:04:32 US01\jamech Exp $
 
@@ -24,6 +26,8 @@ SET NOCOUNT ON;
 
 SET @InitialProductionOrderStatusValue = (select s.setValue from dbo.Settings s where s.setName = N'InitialProductionOrderStatusValue')
 SET @FirmedProductionOrderStatusValue = (select s.setValue from dbo.Settings s where s.setName = N'FirmedProductionOrderStatusValue') 
+
+
 
 BEGIN TRY
 BEGIN;
@@ -205,12 +209,13 @@ Begin
 		
 
 	 END
+
 --added by Matt Temp variable to pass a non null value, passing ordID and algID
 DECLARE @tempOrdId int = null
 set @tempOrdId = (select top 1 ordID FROM alg.ORDERS where algID = @algID)
 EXEC dbo.spAPP_utlUpdateOrderStatus @tempOrdId,@algID,@OrderStatusValue
 --added by Matt changing order status
-				  
+
 END
  
 
@@ -250,6 +255,14 @@ END
         JOIN ALG.Orders alg ON alg.ordID = ord.ordID
         WHERE alg.algID = @algID
      --   AND prdo.prdID = @prdID
+	 
+	--added by Matt Temp variable to pass a non null value, passing ordID and algID
+	DECLARE @tempOrdId2 int = null
+	set @tempOrdId = (select top 1 ordID FROM alg.ORDERS where algID = @algID)
+	EXEC dbo.spAPP_utlUpdateOrderStatus @tempOrdId2,@algID,@OrderStatusValue
+	--added by Matt changing order status
+
+
     END
 
 
