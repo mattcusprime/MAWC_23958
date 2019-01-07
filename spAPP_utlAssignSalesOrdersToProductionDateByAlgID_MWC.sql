@@ -205,6 +205,12 @@ Begin
 		
 
 	 END
+--added by Matt Temp variable to pass a non null value, passing ordID and algID
+DECLARE @tempOrdId int = null
+set @tempOrdId = (select top 1 ordID FROM alg.ORDERS where algID = @algID)
+EXEC dbo.spAPP_utlUpdateOrderStatus @tempOrdId,@algID,@OrderStatusValue
+--added by Matt changing order status
+				  
 END
  
 
