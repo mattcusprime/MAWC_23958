@@ -1,0 +1,119 @@
+
+<RADIOGROUP name="getMode" field="Mode" text="Action" items=" Add to Existing,1; Add to New,2; Remove,3 ; Move to Existing,4" height="100" width="410"  columns="1"/>
+
+
+<CASE name="Case_getMode"  border="false" labelwidth="150" width="400" height="300"
+      master="getMode" masterfieldname="Mode" casenull="LabelNull" caseelse="LabelElse">
+
+
+<DATEEDIT name="Show_proddate" field="proddate" caption="New Production Date:" required="true" case="2"/>
+
+<!--Matt Add Currently not showing due to size from above parent element or other elements sharing space
+
+
+<LOOKUPCOMBOBOX name="Show_OrderItemStatusValue" caption="New Status:" field="OrderStatusValue" case="1" 
+    listsource="
+    
+        SELECT
+         stt.sttID 
+        ,stt.sttValue as Status                    
+        ,stt.sttDescription as description
+        ,stt.sttColorColumnModifier as sttDescription__Color__
+    FROM dbo.OrderStatuses stt     order by 2,3"
+   listfieldnames="Status;description" keyfieldname="Status" required="false"/>
+
+Matt Add -->
+
+<LOOKUPCOMBOBOX name="Show_ProdDateExisting" caption="Existing Production Order:" field="ProdDateExisting" case="1"
+    listsource="
+declare @FirmStatus int = (select s.setValue from dbo.Settings s where s.setName = N'FirmedProductionOrderStatusValue')
+select
+prd.prdProdDate
+from dbo.ProductionOrders prd
+join dbo.Status stt_prd on stt_prd.sttID=prd.sttID
+where stt_prd.sttValue &lt; @FirmStatus
+group by prd.prdProdDate"
+   listfieldnames="prdProdDate" keyfieldname="prdProdDate" required="true"/>
+
+
+
+
+
+<LOOKUPCOMBOBOX name="Show_ProdDateExisting2" caption="Existing Production Order:" field="ProdDateExisting" case="4"
+    listsource="
+declare @FirmStatus int = (select s.setValue from dbo.Settings s where s.setName = N'FirmedProductionOrderStatusValue')
+select
+prd.prdProdDate
+from dbo.ProductionOrders prd
+join dbo.Status stt_prd on stt_prd.sttID=prd.sttID
+where stt_prd.sttValue &lt; @FirmStatus
+group by prd.prdProdDate"
+   listfieldnames="prdProdDate" keyfieldname="prdProdDate" required="true"/>
+   
+
+</CASE>
+
+
+
+
+<CASE name="Case_getMode2" labelwidth="150" width="800"  height="500" border="false"
+      master="getMode" masterfieldname="Mode" casenull="LabelNull" caseelse="LabelElse">
+
+<!--Matt Add Currently not showing due to size from above parent element or other elements sharing space
+
+
+<LOOKUPCOMBOBOX name="Show_OrderItemStatusValue2" caption="New Status:" field="OrderStatusValue" case="4" 
+    listsource="
+    
+        SELECT
+         stt.sttID 
+        ,stt.sttValue as Status                    
+        ,stt.sttDescription as description
+        ,stt.sttColorColumnModifier as sttDescription__Color__
+    FROM dbo.OrderStatuses stt     order by 2,3"
+   listfieldnames="Status;description" keyfieldname="Status" required="false"/>
+
+Matt Add -->
+
+
+<LOOKUPCOMBOBOX name="prdProdBatch" caption="Batch:" field="prdProdBatch" case="1"
+    listsource="
+DECLARE @ProdDate AS nvarchar(50) = :prdProdDate
+
+select 
+prd.prdProdBatch
+,prdDescription
+from dbo.ProductionOrders prd
+where prd.prdProdDate =Cast (@ProdDate as Date)
+order by prd.prdProdBatch"
+            listmaster="Show_ProdDateExisting" listmasterfieldnames="prdProdDate"
+                                                    
+    listfieldnames="prdProdBatch" keyfieldname="prdProdBatch"  required="true"/>
+
+                
+
+                                       
+
+
+<LOOKUPCOMBOBOX name="prdProdBatch2" caption="Batch:" field="prdProdBatch" case="4"
+    listsource="
+DECLARE @ProdDate AS nvarchar(50) = :prdProdDate
+
+select 
+prd.prdProdBatch
+,prdDescription
+from dbo.ProductionOrders prd
+
+where prd.prdProdDate =Cast (@ProdDate as Date)
+order by prd.prdProdBatch"
+            listmaster="Show_ProdDateExisting" listmasterfieldnames="prdProdDate"
+
+    listfieldnames="prdProdBatch" keyfieldname="prdProdBatch" required="true"/>
+
+
+
+
+
+</CASE>
+<TEXTEDIT caption="Sales Order Status Value:"  name="ShowStatusValue" field="OrderStatusValue" required="true" visible="false" />
+   <!--<TEXTEDIT caption="Job Number:"  name="ShowJobNumber"  />-->
